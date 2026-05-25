@@ -21,11 +21,18 @@ const noteSchema = new Schema(
       index: true,
       default: 'Todo',
     },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
   {
     timestamps: true,
     versionKey: false,
   },
 );
+
+noteSchema.index({ userId: 1 });
 
 export const Note = model('Note', noteSchema);
