@@ -4,7 +4,7 @@ import { User } from '../models/user.js';
 import { createSession, setSessionCookies } from '../services/auth.js';
 import { Session } from '../models/session.js';
 import jwt from 'jsonwebtoken';
-import { sendMail } from '../utils/sendMail.js';
+import { sendEmail } from '../utils/sendMail.js';
 
 import path from 'node:path';
 import fs from 'node:fs/promises';
@@ -103,7 +103,7 @@ export const requestResetEmail = async (req, res) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    res
+    return res
       .status(200)
       .json({ message: 'If this email exists, a reset link has been sent' });
   }
@@ -123,14 +123,17 @@ export const requestResetEmail = async (req, res) => {
   });
 
   try {
-    await sendMail({
+    await sendEmail({
       from: process.env.SMTP_FROM,
       to: email,
       subject: 'Reset your password',
       html,
     });
   } catch {
-    createHttpError(500, 'Failed to send the email, please try again later.');
+    throw createHttpError(
+      500,
+      'Failed to send the email, please try again later.',
+    );
   }
 
   res
